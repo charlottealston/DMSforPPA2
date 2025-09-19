@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PPA2 Variants Tool</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background-color: #f4f4f4; cursor: pointer; }
+  input { margin-bottom: 10px; padding: 5px; width: 300px; }
+</style>
+</head>
+<body>
+
+<h2>PPA2 Variants</h2>
+<input type="text" id="searchBox" placeholder="Filter variants..." onkeyup="filterTable()">
+
+<table id="variantsTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">ID</th>
+      <th onclick="sortTable(1)">HGVS Codon</th>
+      <th onclick="sortTable(2)">Protein Change</th>
+      <th onclick="sortTable(3)">Variant Type</th>
+      <th onclick="sortTable(4)">Clinical Significance</th>
+      <th onclick="sortTable(5)">Phenotype</th>
+      <th onclick="sortTable(6)">PMID</th>
+      <th onclick="sortTable(7)">Notes</th>
+      <th onclick="sortTable(8)">DMS Result</th>
+      <th onclick="sortTable(9)">DMS Prediction</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+    <!-- Table rows will be inserted here by JavaScript -->
+  </tbody>
+</table>
+
+<script>
+// Paste your data here
+const variants = [
+  {id:1, hgvs:"c.514G>A", protein:"p.Glu172Lys", type:"missense", clinical:"Pathogenic", phenotype:"Sudden cardiac failure", pmid:"34400813", notes:"Frequent in families", dms:-0.856, prediction:"deleterious"},
+  {id:2, hgvs:"c.340A>G", protein:"p.Met114Val", type:"missense", clinical:"Pathogenic", phenotype:"Infantile cardiac failure", pmid:"34400813", notes:"Reported in several cases", dms:-0.873, prediction:"deleterious"},
+  {id:3, hgvs:"c.540T>A", protein:"p.Cys180Ter", type:"nonsense", clinical:"Pathogenic", phenotype:"Loss of function", pmid:"34400813", notes:"Nonsense variant", dms:-0.892, prediction:"deleterious"},
+  {id:4, hgvs:"c.524C>G", protein:"p.Ser175Ter", type:"nonsense", clinical:"Pathogenic", phenotype:"Sudden death", pmid:"34400813", notes:"Reported in ClinVar", dms:-0.841, prediction:"deleterious"},
+  {id:5, hgvs:"c.881A>C", protein:"p.Gln294Pro", type:"missense", clinical:"Pathogenic", phenotype:"Sudden cardiac arrest", pmid:"34400813", notes:"Reported in literature", dms:-0.819, prediction:"deleterious"}
+];
+
+// Populate table
+const tbody = document.getElementById('tableBody');
+variants.forEach(v => {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${v.id}</td>
+    <td>${v.hgvs}</td>
+    <td>${v.protein}</td>
+    <td>${v.type}</td>
+    <td>${v.clinical}</td>
+    <td>${v.phenotype}</td>
+    <td>${v.pmid}</td>
+    <td>${v.notes}</td>
+    <td>${v.dms.toFixed(3)}</td>
+    <td>${v.prediction}</td>
+  `;
+  tbody.appendChild(row);
+});
+
+// Simple filter function
+function filterTable() {
+  const input = document.getElementById('searchBox').value.toLowerCase();
+  const rows = tbody.getElementsByTagName('tr');
+  for (let i = 0; i < rows.length; i++) {
+    const rowText = rows[i].innerText.toLowerCase();
+    rows[i].style.display = rowText.includes(input) ? "" : "none";
+  }
+}
+
+// Simple sort function
+function sortTable(n) {
+  let table = document.getElementById("variantsTable");
+  let switching = true, dir = "asc";
+  while (switching) {
+    switching = false;
+    let rows = table.rows;
+    for (let i = 1; i < rows.length-1; i++) {
+      let x = rows[i].getElementsByTagName("TD")[n];
+      let y = rows[i+1].getElementsByTagName("TD")[n];
+      let shouldSwitch = (dir=="asc") ? x.innerText > y.innerText : x.innerText < y.innerText;
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i+1], rows[i]);
+        switching = true;
+      }
+    }
+    if (!switching && dir=="asc") { dir="desc"; switching=true; }
+  }
+}
+</script>
+
+</body>
+</html>
